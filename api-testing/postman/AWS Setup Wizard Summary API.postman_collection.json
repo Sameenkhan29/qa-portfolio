@@ -1,0 +1,178 @@
+{
+  "info": {
+    "_postman_id": "76539a7c-5518-4f92-8edd-5e83eeabe97a",
+    "name": "AWS Setup Wizard Summary API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49526032",
+    "_collection_link": "https://go.postman.co/collection/49526032-76539a7c-5518-4f92-8edd-5e83eeabe97a?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Valid",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Verify summary fetched successfully for valid recordId"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/hgs/rest/collectors/records/amazon/cur-exports/summary",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "amazon",
+            "cur-exports",
+            "summary"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "nonExistedRecord",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Verify behavior when recordId does not exist"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{local}}/hgs/rest/collectors/records/amazon/cur-exports/summary?recordId=999999",
+          "host": [
+            "{{local}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "amazon",
+            "cur-exports",
+            "summary"
+          ],
+          "query": [
+            {
+              "key": "recordId",
+              "value": "999999"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "LargeNumericID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Verify API handles extremely large recordId gracefully"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{local}}/hgs/rest/collectors/records/amazon/cur-exports/summary?recordId=999999999999",
+          "host": [
+            "{{local}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "amazon",
+            "cur-exports",
+            "summary"
+          ],
+          "query": [
+            {
+              "key": "recordId",
+              "value": "999999999999"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "recordIDnull",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Verify response when related CUR export data is empty"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{local}}/hgs/rest/collectors/records/amazon/cur-exports/summary?recordId=",
+          "host": [
+            "{{local}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "amazon",
+            "cur-exports",
+            "summary"
+          ],
+          "query": [
+            {
+              "key": "recordId",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "local",
+      "value": "",
+      "type": "default"
+    }
+  ]
+}
