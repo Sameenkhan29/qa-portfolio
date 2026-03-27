@@ -1,0 +1,1980 @@
+{
+  "info": {
+    "_postman_id": "94431382-3b7a-42c8-bc1e-e000a4d33c2e",
+    "name": "Azure Setup Wizard",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49526032",
+    "_collection_link": "https://go.postman.co/collection/49526032-94431382-3b7a-42c8-bc1e-e000a4d33c2e?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "PostAzureConnectSubscription",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const uniqueAliasAzure = \"MyAzureAccount-\" + Date.now() + \"-\" + Math.floor(Math.random() * 100000);\r",
+              "\r",
+              "// Set it as a **collection variable**\r",
+              "pm.collectionVariables.set(\"uniqueAliasAzure\", uniqueAliasAzure);\r",
+              "\r",
+              "// Log for debugging\r",
+              "console.log(\"✅ uniqueAliasAzure set to:\", uniqueAliasAzure);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse response\r",
+              "let response = pm.response.json();\r",
+              "\r",
+              "// Save id as a collection variable\r",
+              "pm.collectionVariables.set(\"accountId\", response.id);\r",
+              "\r",
+              "// Log for verification\r",
+              "console.log(\"✅ Saved accountId (collection):\", response.id);\r",
+              "\r",
+              "// Test that response status code is 200\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "\r",
+              "// ✅ Parse response JSON safely\r",
+              "let jsonData = {};\r",
+              "try {\r",
+              "    jsonData = pm.response.json();\r",
+              "} catch (e) {\r",
+              "    console.error(\"Response is not valid JSON:\", e);\r",
+              "}\r",
+              "\r",
+              "// ✅ Test that response body contains isSuccess: true\r",
+              "pm.test(\"Response body contains isSuccess: true\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"isSuccess\", true);\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that datasource is 'Azure'\r",
+              "pm.test(\"Datasource is Azure\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"datasource\", \"Azure\");\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that recordAlias matches alias sent in request\r",
+              "pm.test(\"recordAlias matches alias sent in request\", function () {\r",
+              "    const requestBody = JSON.parse(pm.request.body.raw);\r",
+              "    const sentAlias = requestBody.alias;\r",
+              "\r",
+              "    pm.expect(jsonData.status).to.have.property(\"recordAlias\", sentAlias);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"accountGroups\": [],\r\n    \"alias\": \"{{uniqueAliasAzure}}\",\r\n    \"applicationID\": \"{{applicationID}}\", //    Zain ACC\r\n    \"subscriptionID\": \"{{subscriptionID}}\", //    Zain ACC\r\n    \"secretKey\": \"{{secretKey}}\",\r\n    \"environment\": \"Azure (Default)\",\r\n    \"targetType\": \"Subscription\",\r\n    \"billingOnly\": false\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/connect",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "connect"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GetpostExportSummarySubscription",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/list-cost-exports?recordId={{accountId}}",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "list-cost-exports"
+          ],
+          "query": [
+            {
+              "key": "recordId",
+              "value": "{{accountId}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "SubsGetblob/filecountCostExport",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n \"recordId\": 2,\r\n \"container\":\"samplecontainer\",\r\n \"folderPath\":\"path-to-export/TestExport-actual-cost/20251201-20251231\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/cost-exports/blob-count",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "cost-exports",
+            "blob-count"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "PostAzureConnectCostExport",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const uniqueAliasAzureCE = \"MyAzureAccountCE-\" + Date.now() + \"-\" + Math.floor(Math.random() * 100000);\r",
+              "\r",
+              "// Set it as a **collection variable**\r",
+              "pm.collectionVariables.set(\"uniqueAliasAzureCE\", uniqueAliasAzureCE);\r",
+              "\r",
+              "// Log for debugging\r",
+              "console.log(\"✅ uniqueAliasAzureCE set to:\", uniqueAliasAzureCE);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse response\r",
+              "let response = pm.response.json();\r",
+              "\r",
+              "// Save id as a collection variable\r",
+              "pm.collectionVariables.set(\"costId\", response.id);\r",
+              "\r",
+              "// Log for verification\r",
+              "console.log(\"✅ Saved accountId (collection):\", response.id);\r",
+              "\r",
+              "// Test that response status code is 200\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "\r",
+              "// ✅ Parse response JSON safely\r",
+              "let jsonData = {};\r",
+              "try {\r",
+              "    jsonData = pm.response.json();\r",
+              "} catch (e) {\r",
+              "    console.error(\"Response is not valid JSON:\", e);\r",
+              "}\r",
+              "\r",
+              "// ✅ Test that response body contains isSuccess: true\r",
+              "pm.test(\"Response body contains isSuccess: true\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"isSuccess\", true);\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that datasource is 'Azure'\r",
+              "pm.test(\"Datasource is Azure\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"datasource\", \"Azure\");\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that recordAlias matches alias sent in request\r",
+              "pm.test(\"recordAlias matches alias sent in request\", function () {\r",
+              "    const requestBody = JSON.parse(pm.request.body.raw);\r",
+              "    const sentAlias = requestBody.alias;\r",
+              "\r",
+              "    pm.expect(jsonData.status).to.have.property(\"recordAlias\", sentAlias);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"accountGroups\": [],\r\n    \"alias\": \"{{uniqueAliasAzureCE}}\",\r\n    \"applicationID\": \"...\", //    Zain ACC\r\n    \"secretKey\": \"jDJ8Q~4-....\",\r\n    \"environment\": \"Azure (Default)\",\r\n    \"targetType\": \"Subscription\",\r\n    \"billingOnly\": true,\r\n    \"costSourceContainer\": \"samplecontainer\",\r\n    \"costStorageAccount\": \"/subscriptions/....../resourceGroups/NetworkWatcherRG/providers/Microsoft.Storage/storageAccounts/zainaccount\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/connect",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "connect"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "PostAzureConnectCostExportCredsBilling",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const uniqueAliasAzureCE = \"MyAzureAccountCE-\" + Date.now() + \"-\" + Math.floor(Math.random() * 100000);\r",
+              "\r",
+              "// Set it as a **collection variable**\r",
+              "pm.collectionVariables.set(\"uniqueAliasAzureCE\", uniqueAliasAzureCE);\r",
+              "\r",
+              "// Log for debugging\r",
+              "console.log(\"✅ uniqueAliasAzureCE set to:\", uniqueAliasAzureCE);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse response\r",
+              "let response = pm.response.json();\r",
+              "\r",
+              "// Save id as a collection variable\r",
+              "pm.collectionVariables.set(\"costId\", response.id);\r",
+              "\r",
+              "// Log for verification\r",
+              "console.log(\"✅ Saved accountId (collection):\", response.id);\r",
+              "\r",
+              "// Test that response status code is 200\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "\r",
+              "// ✅ Parse response JSON safely\r",
+              "let jsonData = {};\r",
+              "try {\r",
+              "    jsonData = pm.response.json();\r",
+              "} catch (e) {\r",
+              "    console.error(\"Response is not valid JSON:\", e);\r",
+              "}\r",
+              "\r",
+              "// ✅ Test that response body contains isSuccess: true\r",
+              "pm.test(\"Response body contains isSuccess: true\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"isSuccess\", true);\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that datasource is 'Azure'\r",
+              "pm.test(\"Datasource is Azure\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"datasource\", \"Azure\");\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that recordAlias matches alias sent in request\r",
+              "pm.test(\"recordAlias matches alias sent in request\", function () {\r",
+              "    const requestBody = JSON.parse(pm.request.body.raw);\r",
+              "    const sentAlias = requestBody.alias;\r",
+              "\r",
+              "    pm.expect(jsonData.status).to.have.property(\"recordAlias\", sentAlias);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"accountGroups\": [],\r\n    \"alias\": \"zain subscriptisdcsoncasdcsd2\",\r\n    \"applicationID\": \"73a5566b-dd2e-41c0-8042-...\",                        //    ZAIN ACC\r\n    \"subscriptionID\": \".....5\",                        //    ZAIN ACC\r\n    \"secretKey\": \"......\",\r\n    \"tenantID\": \"......\",\r\n    \"costStorageAccount\": \"/subscriptions/....../resourceGroups/NetworkWatcherRG/providers/Microsoft.Storage/storageAccounts/zainaccount\",\r\n    \"environment\": \"Azure (Default)\",\r\n    \"targetType\": \"Subscriptions\",\r\n    \"billingOnly\": false\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/connect",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "connect"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Getblob/filecountCostExport",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n \"recordId\": {{costId}},\r\n \"container\":\"samplecontainer\",\r\n \"folderPath\":\"path-to-export/TestExport-actual-cost/20251201-20251231\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/cost-exports/blob-count",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "cost-exports",
+            "blob-count"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GetpostExportSummaryCostExports",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/list-cost-exports?recordId={{costId}}",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "list-cost-exports"
+          ],
+          "query": [
+            {
+              "key": "recordId",
+              "value": "{{costId}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "PostAzureSetup",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n   \"recordId\": {{accountId}},\r\n   \"selectedOption\": \"BillingOnly\",\r\n   \"selectedExports\": {\r\n       \"curExports\": [\r\n           {\r\n               \"container\": \"samplecontainer\",\r\n               \"path\": \"path-to-export/finalprefix-actual-cost\",\r\n               \"type\": \"azure-detected\", // or manual\r\n               \"name\": \"finalprefix-actual-cost\"\r\n           }\r\n\r\n       ]\r\n   }\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/setup",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "setup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "PostAzureSetup Copy",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n   \"recordId\": {{accountId}},\r\n   \"selectedOption\": \"BillingOnly\",\r\n   \"selectedExports\": {\r\n       \"curExports\": [\r\n           {\r\n               \"container\": \"samplecontainer\",\r\n               \"path\": \"path-to-export/finalprefix-actual-cost\",\r\n               \"type\": \"azure-detected\", // or manual\r\n               \"name\": \"finalprefix-actual-cost\"\r\n           }\r\n\r\n       ]\r\n   }\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/setup",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "setup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Extremely long export path",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n   \"recordId\": {{accountId}},\r\n   \"selectedOption\": \"BillingOnly\",\r\n   \"selectedExports\": {\r\n       \"curExports\": [\r\n           {\r\n               \"container\": \"samplecontainer\",\r\n               \"path\": \"path-to-export/finalprefix-actual-cost\",\r\n               \"type\": \"azure-detected\", // or manual\r\n               \"name\": \"finalprefix-actual-cost\"\r\n           }\r\n\r\n       ]\r\n   }\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/setup",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "setup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Missing type field",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n   \"recordId\": {{accountId}},\r\n   \"selectedOption\": \"BillingOnly\",\r\n   \"selectedExports\": {\r\n       \"curExports\": [\r\n           {\r\n               \"container\": \"samplecontainer\",\r\n               \"path\": \"path-to-export/finalprefix-actual-cost\",\r\n               \"name\": \"finalprefix-actual-cost\"\r\n           }\r\n\r\n       ]\r\n   }\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/setup",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "setup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Empty curExports array",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"recordId\": 5,\r\n    \"selectedOption\": \"BillingOnly\",\r\n    \"selectedExports\": {\r\n        \"curExports\": []\r\n    }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/setup",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "setup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Overlapping paths across manual & azure-detected exports",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"recordId\": 5,\r\n    \"selectedOption\": \"BillingOnly\",\r\n    \"selectedExports\": {\r\n        \"curExports\": [\r\n            {\r\n                \"container\": \"samplecontainer\",\r\n                \"path\": \"path-to-export/finalprefix-actual-cost\",\r\n                \"type\": \"manual\",\r\n                \"name\": \"manual-export\"\r\n            },\r\n            {\r\n                \"container\": \"samplecontainer\",\r\n                \"path\": \"path-to-export/finalprefix-actual-cost\",\r\n                \"type\": \"Azure-exports\",\r\n                \"name\": \"azure-export\",\r\n                \"format\": \"CSV\",\r\n                \"schema\": \"ACTUAL_COST\"\r\n            }\r\n        ]\r\n    }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/setup",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "setup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Invalid enum type",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"setupDTO\": {\r\n    \"recordId\": 5,\r\n    \"selectedOption\": \"BillingOnly\"\r\n  },\r\n  \"selectedExports\": {\r\n    \"curExports\": [\r\n      {\r\n        \"__id\": \"samplecontainer::finalprefix-actual-cost::ActualCost::path-to-export\",\r\n        \"type\": \"manual-invalid\", \r\n        \"container\": \"samplecontainer\",\r\n        \"format\": \"CSV\",\r\n        \"name\": \"finalprefix-actual-cost\",\r\n        \"path\": \"path-to-export/finalprefix-actual-cost\",\r\n        \"schema\": \"ActualCost\"\r\n      }\r\n    ]\r\n  }\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/setup",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "setup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Single valid azure-detected export",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n   \"recordId\": {{accountId}},\r\n   \"selectedOption\": \"BillingOnly\",\r\n   \"selectedExports\": {\r\n       \"curExports\": [\r\n           {\r\n               \"container\": \"samplecontainer\",\r\n               \"path\": \"path-to-export/finalprefix-actual-cost\",\r\n               \"type\": \"azure-detected\", // or manual\r\n               \"name\": \"finalprefix-actual-cost\"\r\n           }\r\n\r\n       ]\r\n   }\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/setup",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "setup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "SingleVliadManualExport",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"recordId\": 2,\r\n    \"selectedOption\": \"BillingOnly\",\r\n    \"selectedExports\": {\r\n        \"curExports\": [\r\n            {\r\n                \"container\": \"samplecontainer\",\r\n                \"path\": \"path-to-export/finalprefix-actual-cost\",\r\n                \"type\": \"manual\",\r\n                \"name\": \"finalprefix-actual-cost\"\r\n            }\r\n        ]\r\n    }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/setup",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "setup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ManualEcxportsWithDuplicatePaths",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"recordId\": 2,\r\n    \"selectedOption\": \"BillingOnly\",\r\n    \"selectedExports\": {\r\n        \"curExports\": [\r\n            {\r\n                \"container\": \"samplecontainer\",\r\n                \"path\": \"path-to-export/finalprefix-actual-cost\",\r\n                \"type\": \"manual\",\r\n                \"name\": \"finalprefix-actual-cost\"\r\n            },\r\n            {\r\n                \"container\": \"samplecontainer\",\r\n                \"path\": \"path-to-export/finalprefix-actual-cost\",\r\n                \"type\": \"manual\",\r\n                \"name\": \"finalprefix-actual-cost\"\r\n            }\r\n        ]\r\n    }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/setup",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "setup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TotalCostAPI",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json, text/plain, */*"
+          },
+          {
+            "key": "Accept-Language",
+            "value": "en-GB,en-US;q=0.9,en;q=0.8"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          },
+          {
+            "key": "Connection",
+            "value": "keep-alive"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Origin",
+            "value": "https://react.hyperglance.com"
+          },
+          {
+            "key": "Pragma",
+            "value": "no-cache"
+          },
+          {
+            "key": "Referer",
+            "value": "https://react.hyperglance.com/dashboards?selectedDashboardId=hyp_aws"
+          },
+          {
+            "key": "Sec-Fetch-Dest",
+            "value": "empty"
+          },
+          {
+            "key": "Sec-Fetch-Mode",
+            "value": "cors"
+          },
+          {
+            "key": "Sec-Fetch-Site",
+            "value": "same-origin"
+          },
+          {
+            "key": "User-Agent",
+            "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+          },
+          {
+            "key": "csrf-token",
+            "value": "iprDlqJeVCQ7mIjCZw98Ap5Rdyu8m4oU-0Ts5w6cVE3Js4J24y_g3rh-YNvcZCJtVA6YiFhVg1r44fc27Jmm7LDpFwzcH_7jQa6jssmmQn_DL7HizsEjY0ZfC4KP6NUoXmtjsCm78qsnRnIche50hsi5vNXY7AEOjAHEv3zoxvk="
+          },
+          {
+            "key": "sec-ch-ua",
+            "value": "\"Google Chrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\""
+          },
+          {
+            "key": "sec-ch-ua-mobile",
+            "value": "?0"
+          },
+          {
+            "key": "sec-ch-ua-platform",
+            "value": "\"Windows\""
+          },
+          {
+            "key": "Cookie",
+            "value": "JSESSIONID=xbbEOyFAHem-A3GhdQkmSt0o4gCxSHNQxlBatrN4.9699cdf22b0a; cf_clearance=R3I6GPbItlKW9A27DQG84sUs457ZOu.LFAvx.VJuPfk-1767188209-1.2.1.1-mms3So0dncdiEgprHboNSIz.GsV8V4g732.LYxid6TybMKi6VJp3cDj6uktgw2uNIy_HticIfxneXOCdMEWMSjoOomrtCiRByCZ5eGwlf86DkjdDpK0E_2GkGGjSGtaUp2RzlAOYADOfrGGOJG98bXQ9_Jj9lWtmIMEM4KNiii8wfIwCBGUgnVgixRvnLuYXdjRuEfA.vJj7NyJweOqTrEyjRAnZTnVUzNXmHv7Nshs; _gcl_au=1.1.1905586507.1767188214; _hjSessionUser_327899=eyJpZCI6IjVkZmNhMmNlLTM1YzAtNTRkNC1hOTc1LTQ2ZmZiMjkzMzJhYyIsImNyZWF0ZWQiOjE3NjcxODgyMTU1MjEsImV4aXN0aW5nIjp0cnVlfQ==; hubspotutk=a2db48bdcfb157517ed16caf5b9338a3; __hssrc=1; messagesUtk=5555a610bd064790bcfcec20fac1528a; _ga=GA1.2.560361519.1767188214; __hstc=80404744.a2db48bdcfb157517ed16caf5b9338a3.1767188215729.1767188215729.1767190928768.2; _ga_Y660RJFPN6=GS2.1.s1767249950$o3$g0$t1767249950$j60$l0$h0; session=expiry=1767782622670227"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"accounts\": [],\r\n    \"accountGroups\": []\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/cost/total-cost",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "cost",
+            "total-cost"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "valid",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const uniqueAliasAzure = \"MyAzureAccount-\" + Date.now() + \"-\" + Math.floor(Math.random() * 100000);\r",
+              "\r",
+              "// Set it as a **collection variable**\r",
+              "pm.collectionVariables.set(\"uniqueAliasAzure\", uniqueAliasAzure);\r",
+              "\r",
+              "// Log for debugging\r",
+              "console.log(\"✅ uniqueAliasAzure set to:\", uniqueAliasAzure);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse response\r",
+              "let response = pm.response.json();\r",
+              "\r",
+              "// Save id as a collection variable\r",
+              "pm.collectionVariables.set(\"accountId\", response.id);\r",
+              "\r",
+              "// Log for verification\r",
+              "console.log(\"✅ Saved accountId (collection):\", response.id);\r",
+              "\r",
+              "// Test that response status code is 200\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "\r",
+              "// ✅ Parse response JSON safely\r",
+              "let jsonData = {};\r",
+              "try {\r",
+              "    jsonData = pm.response.json();\r",
+              "} catch (e) {\r",
+              "    console.error(\"Response is not valid JSON:\", e);\r",
+              "}\r",
+              "\r",
+              "// ✅ Test that response body contains isSuccess: true\r",
+              "pm.test(\"Response body contains isSuccess: true\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"isSuccess\", true);\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that datasource is 'Azure'\r",
+              "pm.test(\"Datasource is Azure\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"datasource\", \"Azure\");\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that recordAlias matches alias sent in request\r",
+              "pm.test(\"recordAlias matches alias sent in request\", function () {\r",
+              "    const requestBody = JSON.parse(pm.request.body.raw);\r",
+              "    const sentAlias = requestBody.alias;\r",
+              "\r",
+              "    pm.expect(jsonData.status).to.have.property(\"recordAlias\", sentAlias);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"accountGroups\": [],\r\n    \"alias\": \"{{uniqueAliasAzure}}\",\r\n    \"applicationID\": \"{{applicationID}}\", //    Zain ACC\r\n    \"subscriptionID\": \"{{subscriptionID}}\", //    Zain ACC\r\n    \"secretKey\": \"{{secretKey}}\",\r\n    \"environment\": \"Azure (Default)\",\r\n    \"targetType\": \"Subscription\",\r\n    \"billingOnly\": false\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/connect",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "connect"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Billing True",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const uniqueAliasAzure = \"MyAzureAccount-\" + Date.now() + \"-\" + Math.floor(Math.random() * 100000);\r",
+              "\r",
+              "// Set it as a **collection variable**\r",
+              "pm.collectionVariables.set(\"uniqueAliasAzure\", uniqueAliasAzure);\r",
+              "\r",
+              "// Log for debugging\r",
+              "console.log(\"✅ uniqueAliasAzure set to:\", uniqueAliasAzure);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse response\r",
+              "let response = pm.response.json();\r",
+              "\r",
+              "// Save id as a collection variable\r",
+              "pm.collectionVariables.set(\"accountId\", response.id);\r",
+              "\r",
+              "// Log for verification\r",
+              "console.log(\"✅ Saved accountId (collection):\", response.id);\r",
+              "\r",
+              "// Test that response status code is 200\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "\r",
+              "// ✅ Parse response JSON safely\r",
+              "let jsonData = {};\r",
+              "try {\r",
+              "    jsonData = pm.response.json();\r",
+              "} catch (e) {\r",
+              "    console.error(\"Response is not valid JSON:\", e);\r",
+              "}\r",
+              "\r",
+              "// ✅ Test that response body contains isSuccess: true\r",
+              "pm.test(\"Response body contains isSuccess: true\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"isSuccess\", true);\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that datasource is 'Azure'\r",
+              "pm.test(\"Datasource is Azure\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"datasource\", \"Azure\");\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that recordAlias matches alias sent in request\r",
+              "pm.test(\"recordAlias matches alias sent in request\", function () {\r",
+              "    const requestBody = JSON.parse(pm.request.body.raw);\r",
+              "    const sentAlias = requestBody.alias;\r",
+              "\r",
+              "    pm.expect(jsonData.status).to.have.property(\"recordAlias\", sentAlias);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"accountGroups\": [],\r\n    \"alias\": \"{{uniqueAliasAzure}}\",\r\n    \"applicationID\": \"{{applicationID}}\", //    Zain ACC\r\n    \"subscriptionID\": \"{{subscriptionID}}\", //    Zain ACC\r\n    \"secretKey\": \"{{secretKey}}\",\r\n    \"environment\": \"Azure (Default)\",\r\n    \"targetType\": \"Subscription\",\r\n    \"billingOnly\": true\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/connect",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "connect"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Invalid environment value",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const uniqueAliasAzure = \"MyAzureAccount-\" + Date.now() + \"-\" + Math.floor(Math.random() * 100000);\r",
+              "\r",
+              "// Set it as a **collection variable**\r",
+              "pm.collectionVariables.set(\"uniqueAliasAzure\", uniqueAliasAzure);\r",
+              "\r",
+              "// Log for debugging\r",
+              "console.log(\"✅ uniqueAliasAzure set to:\", uniqueAliasAzure);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse response\r",
+              "let response = pm.response.json();\r",
+              "\r",
+              "// Save id as a collection variable\r",
+              "pm.collectionVariables.set(\"accountId\", response.id);\r",
+              "\r",
+              "// Log for verification\r",
+              "console.log(\"✅ Saved accountId (collection):\", response.id);\r",
+              "\r",
+              "// Test that response status code is 200\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "\r",
+              "// ✅ Parse response JSON safely\r",
+              "let jsonData = {};\r",
+              "try {\r",
+              "    jsonData = pm.response.json();\r",
+              "} catch (e) {\r",
+              "    console.error(\"Response is not valid JSON:\", e);\r",
+              "}\r",
+              "\r",
+              "// ✅ Test that response body contains isSuccess: true\r",
+              "pm.test(\"Response body contains isSuccess: true\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"isSuccess\", true);\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that datasource is 'Azure'\r",
+              "pm.test(\"Datasource is Azure\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"datasource\", \"Azure\");\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that recordAlias matches alias sent in request\r",
+              "pm.test(\"recordAlias matches alias sent in request\", function () {\r",
+              "    const requestBody = JSON.parse(pm.request.body.raw);\r",
+              "    const sentAlias = requestBody.alias;\r",
+              "\r",
+              "    pm.expect(jsonData.status).to.have.property(\"recordAlias\", sentAlias);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"accountGroups\": [],\r\n    \"alias\": \"{{uniqueAliasAzure}}\",\r\n    \"applicationID\": \"{{applicationID}}\", //    Zain ACC\r\n    \"subscriptionID\": \"{{subscriptionID}}\", //    Zain ACC\r\n    \"secretKey\": \"{{secretKey}}\",\r\n    \"environment\": \"Azure (Default)\",\r\n    \"targetType\": \"Subscription\",\r\n    \"billingOnly\": false\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/connect",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "connect"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "DuplicateAlias",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const uniqueAliasAzure = \"MyAzureAccount-\" + Date.now() + \"-\" + Math.floor(Math.random() * 100000);\r",
+              "\r",
+              "// Set it as a **collection variable**\r",
+              "pm.collectionVariables.set(\"uniqueAliasAzure\", uniqueAliasAzure);\r",
+              "\r",
+              "// Log for debugging\r",
+              "console.log(\"✅ uniqueAliasAzure set to:\", uniqueAliasAzure);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse response\r",
+              "let response = pm.response.json();\r",
+              "\r",
+              "// Save id as a collection variable\r",
+              "pm.collectionVariables.set(\"accountId\", response.id);\r",
+              "\r",
+              "// Log for verification\r",
+              "console.log(\"✅ Saved accountId (collection):\", response.id);\r",
+              "\r",
+              "// Test that response status code is 200\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "\r",
+              "// ✅ Parse response JSON safely\r",
+              "let jsonData = {};\r",
+              "try {\r",
+              "    jsonData = pm.response.json();\r",
+              "} catch (e) {\r",
+              "    console.error(\"Response is not valid JSON:\", e);\r",
+              "}\r",
+              "\r",
+              "// ✅ Test that response body contains isSuccess: true\r",
+              "pm.test(\"Response body contains isSuccess: true\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"isSuccess\", true);\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that datasource is 'Azure'\r",
+              "pm.test(\"Datasource is Azure\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"datasource\", \"Azure\");\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that recordAlias matches alias sent in request\r",
+              "pm.test(\"recordAlias matches alias sent in request\", function () {\r",
+              "    const requestBody = JSON.parse(pm.request.body.raw);\r",
+              "    const sentAlias = requestBody.alias;\r",
+              "\r",
+              "    pm.expect(jsonData.status).to.have.property(\"recordAlias\", sentAlias);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"accountGroups\": [],\r\n    \"alias\": \"{{uniqueAliasAzure}}\",\r\n    \"applicationID\": \"{{applicationID}}\", //    Zain ACC\r\n    \"subscriptionID\": \"{{subscriptionID}}\", //    Zain ACC\r\n    \"secretKey\": \"{{secretKey}}\",\r\n    \"environment\": \"Azure (Default)\",\r\n    \"targetType\": \"Subscription\",\r\n    \"billingOnly\": false\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/connect",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "connect"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "EmptyPayload",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const uniqueAliasAzure = \"MyAzureAccount-\" + Date.now() + \"-\" + Math.floor(Math.random() * 100000);\r",
+              "\r",
+              "// Set it as a **collection variable**\r",
+              "pm.collectionVariables.set(\"uniqueAliasAzure\", uniqueAliasAzure);\r",
+              "\r",
+              "// Log for debugging\r",
+              "console.log(\"✅ uniqueAliasAzure set to:\", uniqueAliasAzure);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse response\r",
+              "let response = pm.response.json();\r",
+              "\r",
+              "// Save id as a collection variable\r",
+              "pm.collectionVariables.set(\"accountId\", response.id);\r",
+              "\r",
+              "// Log for verification\r",
+              "console.log(\"✅ Saved accountId (collection):\", response.id);\r",
+              "\r",
+              "// Test that response status code is 200\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "\r",
+              "// ✅ Parse response JSON safely\r",
+              "let jsonData = {};\r",
+              "try {\r",
+              "    jsonData = pm.response.json();\r",
+              "} catch (e) {\r",
+              "    console.error(\"Response is not valid JSON:\", e);\r",
+              "}\r",
+              "\r",
+              "// ✅ Test that response body contains isSuccess: true\r",
+              "pm.test(\"Response body contains isSuccess: true\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"isSuccess\", true);\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that datasource is 'Azure'\r",
+              "pm.test(\"Datasource is Azure\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"datasource\", \"Azure\");\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that recordAlias matches alias sent in request\r",
+              "pm.test(\"recordAlias matches alias sent in request\", function () {\r",
+              "    const requestBody = JSON.parse(pm.request.body.raw);\r",
+              "    const sentAlias = requestBody.alias;\r",
+              "\r",
+              "    pm.expect(jsonData.status).to.have.property(\"recordAlias\", sentAlias);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/connect",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "connect"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "invalidSecretKey",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const uniqueAliasAzure = \"MyAzureAccount-\" + Date.now() + \"-\" + Math.floor(Math.random() * 100000);\r",
+              "\r",
+              "// Set it as a **collection variable**\r",
+              "pm.collectionVariables.set(\"uniqueAliasAzure\", uniqueAliasAzure);\r",
+              "\r",
+              "// Log for debugging\r",
+              "console.log(\"✅ uniqueAliasAzure set to:\", uniqueAliasAzure);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse response\r",
+              "let response = pm.response.json();\r",
+              "\r",
+              "// Save id as a collection variable\r",
+              "pm.collectionVariables.set(\"accountId\", response.id);\r",
+              "\r",
+              "// Log for verification\r",
+              "console.log(\"✅ Saved accountId (collection):\", response.id);\r",
+              "\r",
+              "// Test that response status code is 200\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "\r",
+              "// ✅ Parse response JSON safely\r",
+              "let jsonData = {};\r",
+              "try {\r",
+              "    jsonData = pm.response.json();\r",
+              "} catch (e) {\r",
+              "    console.error(\"Response is not valid JSON:\", e);\r",
+              "}\r",
+              "\r",
+              "// ✅ Test that response body contains isSuccess: true\r",
+              "pm.test(\"Response body contains isSuccess: true\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"isSuccess\", true);\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that datasource is 'Azure'\r",
+              "pm.test(\"Datasource is Azure\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"datasource\", \"Azure\");\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that recordAlias matches alias sent in request\r",
+              "pm.test(\"recordAlias matches alias sent in request\", function () {\r",
+              "    const requestBody = JSON.parse(pm.request.body.raw);\r",
+              "    const sentAlias = requestBody.alias;\r",
+              "\r",
+              "    pm.expect(jsonData.status).to.have.property(\"recordAlias\", sentAlias);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"accountGroups\": [],\r\n    \"alias\": \"{{uniqueAliasAzure}}\",\r\n    \"applicationID\": \"{{applicationID}}\", //    Zain ACC\r\n    \"subscriptionID\": \"{{subscriptionID}}\", //    Zain ACC\r\n    \"secretKey\": \"{{secretKey}}\",\r\n    \"environment\": \"Azure (Default)\",\r\n    \"targetType\": \"Subscription\",\r\n    \"billingOnly\": false\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/connect",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "connect"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "InjectScript",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const uniqueAliasAzure = \"MyAzureAccount-\" + Date.now() + \"-\" + Math.floor(Math.random() * 100000);\r",
+              "\r",
+              "// Set it as a **collection variable**\r",
+              "pm.collectionVariables.set(\"uniqueAliasAzure\", uniqueAliasAzure);\r",
+              "\r",
+              "// Log for debugging\r",
+              "console.log(\"✅ uniqueAliasAzure set to:\", uniqueAliasAzure);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse response\r",
+              "let response = pm.response.json();\r",
+              "\r",
+              "// Save id as a collection variable\r",
+              "pm.collectionVariables.set(\"accountId\", response.id);\r",
+              "\r",
+              "// Log for verification\r",
+              "console.log(\"✅ Saved accountId (collection):\", response.id);\r",
+              "\r",
+              "// Test that response status code is 200\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "\r",
+              "// ✅ Parse response JSON safely\r",
+              "let jsonData = {};\r",
+              "try {\r",
+              "    jsonData = pm.response.json();\r",
+              "} catch (e) {\r",
+              "    console.error(\"Response is not valid JSON:\", e);\r",
+              "}\r",
+              "\r",
+              "// ✅ Test that response body contains isSuccess: true\r",
+              "pm.test(\"Response body contains isSuccess: true\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"isSuccess\", true);\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that datasource is 'Azure'\r",
+              "pm.test(\"Datasource is Azure\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"datasource\", \"Azure\");\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that recordAlias matches alias sent in request\r",
+              "pm.test(\"recordAlias matches alias sent in request\", function () {\r",
+              "    const requestBody = JSON.parse(pm.request.body.raw);\r",
+              "    const sentAlias = requestBody.alias;\r",
+              "\r",
+              "    pm.expect(jsonData.status).to.have.property(\"recordAlias\", sentAlias);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"accountGroups\": [],\r\n    \"alias\": \"{{uniqueAliasAzure}}\",\r\n    \"applicationID\": \"{{applicationID}}\", //    Zain ACC\r\n    \"subscriptionID\": \"{{subscriptionID}}\", //    Zain ACC\r\n    \"secretKey\": \"{{secretKey}}\",\r\n    \"tenantID\": \"{{tenantID}}\",\r\n    \"environment\": \"Azure (Default)\",\r\n    \"targetType\": \"Subscription\",\r\n    \"billingOnly\": false\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/connect",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "connect"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ExtremeAliasName",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const uniqueAliasAzure = \"MyAzureAccount-\" + Date.now() + \"-\" + Math.floor(Math.random() * 100000);\r",
+              "\r",
+              "// Set it as a **collection variable**\r",
+              "pm.collectionVariables.set(\"uniqueAliasAzure\", uniqueAliasAzure);\r",
+              "\r",
+              "// Log for debugging\r",
+              "console.log(\"✅ uniqueAliasAzure set to:\", uniqueAliasAzure);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse response\r",
+              "let response = pm.response.json();\r",
+              "\r",
+              "// Save id as a collection variable\r",
+              "pm.collectionVariables.set(\"accountId\", response.id);\r",
+              "\r",
+              "// Log for verification\r",
+              "console.log(\"✅ Saved accountId (collection):\", response.id);\r",
+              "\r",
+              "// Test that response status code is 200\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "\r",
+              "// ✅ Parse response JSON safely\r",
+              "let jsonData = {};\r",
+              "try {\r",
+              "    jsonData = pm.response.json();\r",
+              "} catch (e) {\r",
+              "    console.error(\"Response is not valid JSON:\", e);\r",
+              "}\r",
+              "\r",
+              "// ✅ Test that response body contains isSuccess: true\r",
+              "pm.test(\"Response body contains isSuccess: true\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"isSuccess\", true);\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that datasource is 'Azure'\r",
+              "pm.test(\"Datasource is Azure\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"datasource\", \"Azure\");\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that recordAlias matches alias sent in request\r",
+              "pm.test(\"recordAlias matches alias sent in request\", function () {\r",
+              "    const requestBody = JSON.parse(pm.request.body.raw);\r",
+              "    const sentAlias = requestBody.alias;\r",
+              "\r",
+              "    pm.expect(jsonData.status).to.have.property(\"recordAlias\", sentAlias);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"accountGroups\": [],\r\n    \"alias\": \"testing is a chooice we need to test this for instance and we are required to test it testing is a chooice we need to test this for instance and we are required to test it\",\r\n    \"applicationID\": \"{{applicationID}}\", //    Zain ACC\r\n    \"subscriptionID\": \"{{subscriptionID}}\", //    Zain ACC\r\n    \"secretKey\": \"{{secretKey}}\",\r\n    \"tenantID\": \"{{tenantID}}\",\r\n    \"environment\": \"Azure (Default)\",\r\n    \"targetType\": \"Subscription\",\r\n    \"billingOnly\": false\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/connect",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "connect"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "MaldformedJSONPayload",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const uniqueAliasAzure = \"MyAzureAccount-\" + Date.now() + \"-\" + Math.floor(Math.random() * 100000);\r",
+              "\r",
+              "// Set it as a **collection variable**\r",
+              "pm.collectionVariables.set(\"uniqueAliasAzure\", uniqueAliasAzure);\r",
+              "\r",
+              "// Log for debugging\r",
+              "console.log(\"✅ uniqueAliasAzure set to:\", uniqueAliasAzure);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse response\r",
+              "let response = pm.response.json();\r",
+              "\r",
+              "// Save id as a collection variable\r",
+              "pm.collectionVariables.set(\"accountId\", response.id);\r",
+              "\r",
+              "// Log for verification\r",
+              "console.log(\"✅ Saved accountId (collection):\", response.id);\r",
+              "\r",
+              "// Test that response status code is 200\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "\r",
+              "// ✅ Parse response JSON safely\r",
+              "let jsonData = {};\r",
+              "try {\r",
+              "    jsonData = pm.response.json();\r",
+              "} catch (e) {\r",
+              "    console.error(\"Response is not valid JSON:\", e);\r",
+              "}\r",
+              "\r",
+              "// ✅ Test that response body contains isSuccess: true\r",
+              "pm.test(\"Response body contains isSuccess: true\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"isSuccess\", true);\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that datasource is 'Azure'\r",
+              "pm.test(\"Datasource is Azure\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"datasource\", \"Azure\");\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that recordAlias matches alias sent in request\r",
+              "pm.test(\"recordAlias matches alias sent in request\", function () {\r",
+              "    const requestBody = JSON.parse(pm.request.body.raw);\r",
+              "    const sentAlias = requestBody.alias;\r",
+              "\r",
+              "    pm.expect(jsonData.status).to.have.property(\"recordAlias\", sentAlias);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"alias\": \"MyAzureAccount\",",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/connect",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "connect"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "MissingSubscriptionID",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const uniqueAliasAzure = \"MyAzureAccount-\" + Date.now() + \"-\" + Math.floor(Math.random() * 100000);\r",
+              "\r",
+              "// Set it as a **collection variable**\r",
+              "pm.collectionVariables.set(\"uniqueAliasAzure\", uniqueAliasAzure);\r",
+              "\r",
+              "// Log for debugging\r",
+              "console.log(\"✅ uniqueAliasAzure set to:\", uniqueAliasAzure);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse response\r",
+              "let response = pm.response.json();\r",
+              "\r",
+              "// Save id as a collection variable\r",
+              "pm.collectionVariables.set(\"accountId\", response.id);\r",
+              "\r",
+              "// Log for verification\r",
+              "console.log(\"✅ Saved accountId (collection):\", response.id);\r",
+              "\r",
+              "// Test that response status code is 200\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "\r",
+              "// ✅ Parse response JSON safely\r",
+              "let jsonData = {};\r",
+              "try {\r",
+              "    jsonData = pm.response.json();\r",
+              "} catch (e) {\r",
+              "    console.error(\"Response is not valid JSON:\", e);\r",
+              "}\r",
+              "\r",
+              "// ✅ Test that response body contains isSuccess: true\r",
+              "pm.test(\"Response body contains isSuccess: true\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"isSuccess\", true);\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that datasource is 'Azure'\r",
+              "pm.test(\"Datasource is Azure\", function () {\r",
+              "    pm.expect(jsonData.status).to.have.property(\"datasource\", \"Azure\");\r",
+              "});\r",
+              "\r",
+              "// ✅ Test that recordAlias matches alias sent in request\r",
+              "pm.test(\"recordAlias matches alias sent in request\", function () {\r",
+              "    const requestBody = JSON.parse(pm.request.body.raw);\r",
+              "    const sentAlias = requestBody.alias;\r",
+              "\r",
+              "    pm.expect(jsonData.status).to.have.property(\"recordAlias\", sentAlias);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"accountGroups\": [],\r\n    \"alias\": \"{{uniqueAliasAzure}}\",\r\n    \"applicationID\": \"{{applicationID}}\", //    Zain ACC\r\n    \"secretKey\": \"{{secretKey}}\",\r\n    \"tenantID\": \"{{tenantID}}\",\r\n    \"environment\": \"Azure (Default)\",\r\n    \"targetType\": \"Subscription\",\r\n    \"billingOnly\": false\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{qaserverAzure}}/hgs/rest/collectors/records/azure/connect",
+          "host": [
+            "{{qaserverAzure}}"
+          ],
+          "path": [
+            "hgs",
+            "rest",
+            "collectors",
+            "records",
+            "azure",
+            "connect"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "qaserverAzure",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "applicationID",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "subscriptionID",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "secretKey",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "tenantID",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "uniqueAliasAzure",
+      "value": ""
+    },
+    {
+      "key": "accountId",
+      "value": ""
+    },
+    {
+      "key": "uniqueAliasAzureCE",
+      "value": ""
+    },
+    {
+      "key": "costId",
+      "value": ""
+    }
+  ]
+}
